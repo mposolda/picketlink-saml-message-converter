@@ -5,7 +5,7 @@ How to deploy and use
 
 1) mvn clean install
 
-2) Deploy WAR file "target/picketlink-saml-message-converter.war" t your server
+2) Deploy WAR file "target/picketlink-saml-message-converter.war" to your server
 
 3) Go to "http://localhost:8080/picketlink-saml-message-converter/"
 
