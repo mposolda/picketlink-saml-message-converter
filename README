@@ -9,7 +9,7 @@ How to deploy and use
 
 3) Go to "http://localhost:8080/picketlink-saml-message-converter/"
 
-4) As input to the textArea, use some SAML message, which was used as SAMLRequest parameter or SAMLResponse parameter. 
+4) As input to the textArea, use some SAML message, which was used as SAMLRequest parameter or SAMLResponse parameter in HTTP request.
 Example: this was value of SAMLRequest parameter from SAML logout request sent via GET method (Redirect binding):
 
 jZJRS8MwFIX%2FSsmrZM26OctlLdQVsTC1bNVXSds7F0iTmqTq%2Fr1dqzAfnEIeQu53zz33kKXljWwh6dxebfC1Q%2Bu8j0YqC0MhIp1RoLkVFhRv0IKrYJvcrSGYMGiNdrrSkowt52FuLRontCJe8n1daWW7Bs0WzZuo8HGzjsjeuRZ8X%2BqKy722DkIWMh%2BbVuoDok%2B8tPcoFD%2F2%2F0aLuu3BLI1Ilj6HJS5CnCFFDOd0XmJJS8Zripzz8PJqttgFvIet7TBT1nHlIhKwaUDZgrJ5MZ1Cf4Jw0itfsAAYI17%2Btfi1ULVQL%2BcXL0fIwm1R5DR%2F2BbEe0JjB%2F89QOLlMWsYHJiT9P%2BbZ%2FxHZEv%2FRH8c1sJ9L5iluZaiOniJlPp9ZZA7jIgzHRLvRpuGu%2FMWji%2BiprsBBWe4sgKVI348jvz5r%2BJP
