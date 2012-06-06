@@ -24,13 +24,16 @@
 package org.gatein.test;
 
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
+import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.web.util.PostBindingUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
@@ -45,6 +48,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.security.KeyPair;
 
 /**
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
@@ -136,6 +140,28 @@ public class PicketlinkSAMLConverter
       {
          e.printStackTrace();
          return "ERROR. Look at server log. Message is: " + e.getMessage();
+      }
+   }
+
+   public String signXML(String samlXMLMessage, TrustKeyManager keyManager)
+   {
+      try
+      {
+         KeyPair keyPair = keyManager.getSigningKeyPair();
+
+         Document docToSign = DocumentUtil.getDocument(samlXMLMessage);
+
+         SAML2Signature samlSignature = new SAML2Signature();
+         Node nextSibling = samlSignature.getNextSiblingOfIssuer(docToSign);
+         samlSignature.setNextSibling(nextSibling);
+         samlSignature.signSAMLDocument(docToSign, keyPair);
+
+         return DocumentUtil.asString(docToSign);
+
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
       }
    }
 

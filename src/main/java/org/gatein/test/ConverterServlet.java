@@ -23,19 +23,27 @@
 
 package org.gatein.test;
 
+import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.security.KeyPair;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 public class ConverterServlet extends HttpServlet
 {
-   private PicketlinkSAMLConverter converter = new PicketlinkSAMLConverter(); 
+   private PicketlinkSAMLConverter converter = new PicketlinkSAMLConverter();
+
+   // Key is sessionId, Value is TrustKeyManager for this session. We don't want to store keys to HttpSession
+   private Map<String, TrustKeyManager> managers = new HashMap<String, TrustKeyManager>();
    
    @Override
    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
@@ -44,18 +52,44 @@ public class ConverterServlet extends HttpServlet
       String inputToConvert = request.getParameter("inputToConvert");
       String submit1 = request.getParameter("submit1");
 
-      if ("format previous decoding output".equals(submit1))
+      if ("import signing key".equals(submit1))
+      {
+         String keystoreFile = request.getParameter("keystoreURL");
+         String keystorePassword = request.getParameter("keystorePassword");
+         String keyAlias = request.getParameter("keyAlias");
+         String keyPassword = request.getParameter("keyPassword");
+
+         System.out.println("Trying to create new KeystoreKeyManager: keystoreURL=" + keystoreFile +
+               ", keystorePassword=" + keystorePassword + ", keyAlias=" + keyAlias + ", keyPassword=" + keyPassword);
+
+         TrustKeyManager keyManager = ConverterUtils.getTrustKeyManager(keystoreFile, keystorePassword, keyAlias, keyPassword);
+
+         // Enforce initialization of keyManager
+         try
+         {
+            keyManager.getSigningKeyPair();
+         }
+         catch (Exception e)
+         {
+            throw new RuntimeException(e);
+         }
+
+         managers.put(request.getSession().getId(), keyManager);
+         request.getSession().setAttribute("keystoreImported", true);
+
+      }
+      else if ("format previous decoding output".equals(submit1))
       {
          response.setContentType("text/xml");
          response.getWriter().println(sess.getAttribute("outputAsXML"));
          response.getWriter().flush();
          response.getWriter().close();
          return;
-      }
 
-      if (inputToConvert != null)
+      }
+      else if (inputToConvert != null)
       {
-         String output = convert(inputToConvert, submit1);
+         String output = convert(inputToConvert, submit1, request);
 
          System.out.println("CONVERTED OUTPUT: " + output);
          sess.setAttribute("outputAsXML", output);
@@ -71,7 +105,7 @@ public class ConverterServlet extends HttpServlet
       
    }
    
-   private String convert(String input, String submit)
+   private String convert(String input, String submit, HttpServletRequest request)
    {
       if ("decode redirect SAML Message".equals(submit))
       {
@@ -88,6 +122,10 @@ public class ConverterServlet extends HttpServlet
       else if ("encode post SAML Message".equals(submit))
       {
          return converter.encodePostSAMLMessage(input);
+      }
+      else if ("sign XML with new signature (require keystore)".equals(submit))
+      {
+         return converter.signXML(input, managers.get(request.getSession().getId()));
       }
 
       // TODO
