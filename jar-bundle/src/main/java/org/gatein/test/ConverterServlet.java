@@ -50,18 +50,8 @@ public class ConverterServlet extends HttpServlet
    {
       super.init();
 
-      ClassLoader currentCl = Thread.currentThread().getContextClassLoader();
-
       // Enforce loading of that class
-      try
-      {
-         Thread.currentThread().setContextClassLoader(TrustKeyManager.class.getClassLoader());
-         XMLSignatureUtil2 xmlSignatureUtil2 = new XMLSignatureUtil2();
-      }
-      finally
-      {
-         Thread.currentThread().setContextClassLoader(currentCl);
-      }
+      XMLSignatureUtil2 xmlSignatureUtil2 = new XMLSignatureUtil2();
    }
 
    @Override

@@ -212,7 +212,7 @@ public class PicketlinkSAMLConverter
          String referenceURI = "#" + assertionId;
 
          // Configure ID (it's required by Santuario library)
-         ((Element) assertion).setIdAttribute("ID", true);
+         assertion.setIdAttribute("ID", true);
 
          KeyPair keyPair = keyManager.getSigningKeyPair();
 
@@ -231,9 +231,6 @@ public class PicketlinkSAMLConverter
       try
       {
          Document doc = DocumentUtil.getDocument(samlXMLMessage);
-
-         //boolean coreValidity = XMLSignatureUtil.validate(doc, keyManager.getSigningKeyPair().getPublic());
-
          boolean coreValidity = new SAML2Signature().validate(doc, keyManager.getSigningKeyPair().getPublic());
          return String.valueOf(coreValidity);
       }
