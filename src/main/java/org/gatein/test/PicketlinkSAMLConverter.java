@@ -50,6 +50,7 @@ import javax.xml.crypto.dsig.Transform;
 import javax.xml.crypto.dsig.XMLSignature;
 import javax.xml.crypto.dsig.XMLSignatureFactory;
 import javax.xml.crypto.dsig.dom.DOMSignContext;
+import javax.xml.crypto.dsig.dom.DOMValidateContext;
 import javax.xml.crypto.dsig.keyinfo.KeyInfo;
 import javax.xml.crypto.dsig.keyinfo.KeyInfoFactory;
 import javax.xml.crypto.dsig.keyinfo.KeyValue;
@@ -201,30 +202,40 @@ public class PicketlinkSAMLConverter
          Document doc = DocumentUtil.getDocument(samlXMLMessage);
 
          // Obtain assertion to sign
-         NodeList nl = doc.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(),
-               JBossSAMLConstants.ASSERTION.get());
-         if (nl.getLength() == 0)
-         {
-            return "XML Message does not contain assertion!!!!";
-         }
-         if (nl.getLength() > 1)
-         {
-            return "XML Message contains more Assertion objects!!!";
-         }
-         Node assertion = nl.item(0);
+         Element assertion = XMLSignatureUtil2.getFirstAssertionElement(doc);
+
+         // Obtain next sibling of issuer
+         Node nextSibling = XMLSignatureUtil2.getNextSiblingOfIssuer(assertion);
 
          // Obtain referenceURI of assertion
          String assertionId = ((Element)assertion).getAttribute("ID");
          String referenceURI = "#" + assertionId;
 
-         // Configure ID (required by Santuario)
+         // Configure ID (it's required by Santuario library)
          ((Element) assertion).setIdAttribute("ID", true);
 
          KeyPair keyPair = keyManager.getSigningKeyPair();
 
-         doc = XMLSignatureUtil.sign(doc, assertion, keyPair, "http://www.w3.org/2000/09/xmldsig#sha1", "http://www.w3.org/2000/09/xmldsig#rsa-sha1", referenceURI);
+         XMLSignatureUtil2.sign(keyPair, "http://www.w3.org/2000/09/xmldsig#sha1", "http://www.w3.org/2000/09/xmldsig#rsa-sha1", referenceURI, assertion, nextSibling);
 
          return DocumentUtil.asString(doc);
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
+      }
+   }
+
+   public String validateSignatureOnSamlAssertion(String samlXMLMessage, TrustKeyManager keyManager)
+   {
+      try
+      {
+         Document doc = DocumentUtil.getDocument(samlXMLMessage);
+
+         //boolean coreValidity = XMLSignatureUtil.validate(doc, keyManager.getSigningKeyPair().getPublic());
+
+         boolean coreValidity = new SAML2Signature().validate(doc, keyManager.getSigningKeyPair().getPublic());
+         return String.valueOf(coreValidity);
       }
       catch (Exception e)
       {

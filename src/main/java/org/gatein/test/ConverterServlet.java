@@ -44,7 +44,26 @@ public class ConverterServlet extends HttpServlet
 
    // Key is sessionId, Value is TrustKeyManager for this session. We don't want to store keys to HttpSession
    private Map<String, TrustKeyManager> managers = new HashMap<String, TrustKeyManager>();
-   
+
+   @Override
+   public void init() throws ServletException
+   {
+      super.init();
+
+      ClassLoader currentCl = Thread.currentThread().getContextClassLoader();
+
+      // Enforce loading of that class
+      try
+      {
+         Thread.currentThread().setContextClassLoader(TrustKeyManager.class.getClassLoader());
+         XMLSignatureUtil2 xmlSignatureUtil2 = new XMLSignatureUtil2();
+      }
+      finally
+      {
+         Thread.currentThread().setContextClassLoader(currentCl);
+      }
+   }
+
    @Override
    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
    {
@@ -130,6 +149,10 @@ public class ConverterServlet extends HttpServlet
       else if ("sign XML assertion with new signature (require keystore)".equals(submit))
       {
          return converter.signXMLAssertion(input, managers.get(request.getSession().getId()));
+      }
+      else if ("validate XML (require keystore)".equals(submit))
+      {
+         return converter.validateSignatureOnSamlAssertion(input, managers.get(request.getSession().getId()));
       }
 
       // TODO
