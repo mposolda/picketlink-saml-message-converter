@@ -39,6 +39,7 @@
     <input type="submit" name="submit1" value="encode post SAML Message" /><br>
     <input type="submit" name="submit1" value="format previous decoding output" /><br>
     <input type="submit" name="submit1" value="sign XML with new signature (require keystore)"  <%= keyStoreImportedHelper %> /><br>
+    <input type="submit" name="submit1" value="sign XML assertion with new signature (require keystore)"  <%= keyStoreImportedHelper %> /><br>
 </form>
 </body>
 </html>

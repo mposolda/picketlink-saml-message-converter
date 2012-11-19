@@ -127,6 +127,10 @@ public class ConverterServlet extends HttpServlet
       {
          return converter.signXML(input, managers.get(request.getSession().getId()));
       }
+      else if ("sign XML assertion with new signature (require keystore)".equals(submit))
+      {
+         return converter.signXMLAssertion(input, managers.get(request.getSession().getId()));
+      }
 
       // TODO
       return "ERROR - not known submit";
