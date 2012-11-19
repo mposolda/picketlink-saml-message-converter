@@ -1,7 +1,7 @@
 <jboss-deployment-structure>
   
   <deployment>
-    <!-- Add picketlink module dependency -->
+    <!-- Add picketlink module dependency (Make sure that JAR file from jar-bundle is deployed in picketlink module in AS -->
     <dependencies>
       <module name="org.picketlink" />
     </dependencies>
