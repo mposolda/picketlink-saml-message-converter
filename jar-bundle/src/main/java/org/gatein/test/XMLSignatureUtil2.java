@@ -97,6 +97,7 @@ public class XMLSignatureUtil2
 
    /**
     * Sign the specified element
+    * TODO: can be removed later as the method exist on class XMLSignatureUtil from Picketlink 2.1.6. Likely whole class can be removed...
     */
    public static void sign(KeyPair keyPair, String digestMethod, String signatureMethod, String referenceURI,
                                Element elementToSign, Node nextSibling)
